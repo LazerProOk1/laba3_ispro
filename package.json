@@ -2,6 +2,11 @@
   "name": "docstring-generator",
   "displayName": "Docstring Generator",
   "description": "Generates a docstring skeleton for a Python function",
+  "publisher": "lazerprook1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LazerProOk1/laba3_ispro.git"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.140.0"
