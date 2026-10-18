@@ -1,7 +1,7 @@
 {
-  "name": "my-first-extension",
-  "displayName": "my-first-extension",
-  "description": "My first VS Code extension",
+  "name": "docstring-generator",
+  "displayName": "Docstring Generator",
+  "description": "Generates a docstring skeleton for a Python function",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.140.0"
@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "my-first-extension.helloWorld",
-        "title": "Hello World"
+        "command": "docgen.generate",
+        "title": "Generate Docstring"
       }
     ]
   },

@@ -1,71 +1,92 @@
-# my-first-extension README
+# Docstring Generator
 
-This is the README for your extension "my-first-extension". After writing up a brief description, we recommend including the following sections.
+Плагин для VS Code. Делает заготовку docstring для функции на Python.
 
-## Features
+**Автор:** Жаворонкин Марк Леонидович, группа M3102
+**Предмет:** Инструментальные средства разработки ПО, лабораторная работа №3
+**IDE:** Visual Studio Code
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+> **Про ИИ.** Разбор функций (`src/parser.ts`) и связка с редактором (`src/extension.ts`) написаны с помощью и объяснением нейросети. Я разобрался, как этот код работает, и проверил его на примерах (`examples/test.py`).
 
-For example if there is an image subfolder under your extension project workspace:
+## Что делает плагин
 
-\!\[feature X\]\(images/feature-x.png\)
+Необходимо поставить курсор на функцию и вызвать команду **Generate Docstring**. Под строкой `def` появляется docstring: в нём уже есть параметры, их типы, значения по умолчанию, тип возврата и пример вызова. Слова «описание» нужно заменить на свой текст.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Что умеет
 
-## Requirements
+- Находит функцию по курсору. Курсор может стоять на `def` или внутри функции.
+- Берёт из сигнатуры имя, параметры, типы, значения по умолчанию, `*args`, `**kwargs` и `-> тип`.
+- Работает, если сигнатура записана в несколько строк.
+- Не режет типы вроде `dict[str, int]` по запятой.
+- Пропускает `self` и `cls`.
+- Если в теле есть `return` со значением, добавляет раздел «Возвращаемое значение».
+- Если есть `raise`, добавляет раздел «Исключения».
+- Не вставляет второй docstring, если он уже есть.
+- Работает только в Python-файлах. В других показывает предупреждение.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## Пример
 
-## Extension Settings
+Было:
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+```python
+def scale(self, data: dict[str, int], k: int = 2) -> list[int]:
+    if k < 0:
+        raise ValueError("bad k")
+    return [1]
+```
 
-For example:
+Стало:
 
-This extension contributes the following settings:
+```python
+def scale(self, data: dict[str, int], k: int = 2) -> list[int]:
+    '''
+    Описание функции scale.
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+    Параметры:
+        data (dict[str, int]): описание
+        k (int): описание, по умолчанию 2
 
-## Known Issues
+    Возвращаемое значение:
+        list[int]: описание
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+    Исключения:
+        ValueError: когда возникает
 
-## Release Notes
+    Пример вызова:
+        scale(data)
+    '''
+    if k < 0:
+        raise ValueError("bad k")
+    return [1]
+```
 
-Users appreciate release notes as you update your extension.
+## Как запустить
 
-### 1.0.0
+Нужны Node.js и VS Code.
 
-Initial release of ...
+```
+git clone https://github.com/LazerProOk1/laba3_ispro.git
+cd laba3_ispro
+npm install
+npm run compile
+```
 
-### 1.0.1
+Потом открыть папку в VS Code и нажми **F5**. Откроется второе окно. В нём открыть файл `.py` (например `examples/test.py`), поставить курсор на функцию, нажать Ctrl+Shift+P и выбрать **Generate Docstring**.
 
-Fixed issue #.
+## Что не умеет
 
-### 1.1.0
+- Если внутри функции есть другая функция, её `return` и `raise` тоже посчитаются.
+- Тип возврата берёт только из `->`. Сам по коду он его не определяет.
+- Функции в одну строку (`def f(): return 1`) не поддерживаются.
+- Описания нужно писать самому.
 
-Added features X, Y, and Z.
+## Файлы проекта
 
----
+```
+src/extension.ts    команда и работа с редактором
+src/parser.ts       разбор функции и сборка docstring
+examples/test.py    примеры для проверки
+docs/               документация
+```
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Подробнее: [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)

@@ -1,26 +1,42 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { findDefLine, parseFunction, buildDocstring } from './parser';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  const cmd = vscode.commands.registerCommand('docgen.generate', () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || editor.document.languageId !== 'python') {
+      vscode.window.showWarningMessage('Открой Python-файл и поставь курсор на функцию.');
+      return;
+    }
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "my-first-extension" is now active!');
+    const lines = editor.document.getText().split(/\r?\n/);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('my-first-extension.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from my-first-extension!');
-	});
+    const defLine = findDefLine(lines, editor.selection.active.line);
+    if (defLine === -1) {
+      vscode.window.showWarningMessage('Выше курсора нет функции (def).');
+      return;
+    }
 
-	context.subscriptions.push(disposable);
+    const info = parseFunction(lines, defLine);
+    if (!info) {
+      vscode.window.showWarningMessage('Не удалось разобрать строку def.');
+      return;
+    }
+    if (info.hasDocstring) {
+      vscode.window.showInformationMessage('У функции ' + info.name + ' уже есть docstring.');
+      return;
+    }
+
+    const eol = editor.document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
+    const text = buildDocstring(info)
+      .map(l => (l === '' ? '' : info.indent + '    ' + l))
+      .join(eol) + eol;
+
+    const position = new vscode.Position(info.signatureEnd + 1, 0);
+    editor.edit(builder => builder.insert(position, text));
+  });
+
+  context.subscriptions.push(cmd);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}
